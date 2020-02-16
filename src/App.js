@@ -18,7 +18,7 @@ export default function App() {
     return (
         <Layout className="app">
             <PageHeader title="ERGO Wallet BackOffice" />
-            <Content>
+            <Content style={{background: 'white', paddingTop: '24px'}}>
                 <MainPage />
             </Content>
         </Layout>
