@@ -1,0 +1,40 @@
+// @import '~antd/dist/antd.less'; // Import Ant Design styles by less entry
+@import '~antd/es/style/core/index.less';
+@import '~antd/es/style/themes/default.less';
+
+.p24 {
+    padding: 1em 0;
+}
+
+#root {height: 100%}
+
+.ant-layout {
+    height: 100%;
+    &-content {
+        padding: 0 24px;
+        & > section {
+            padding-bottom: 24px;
+        }
+    }
+}
+
+@media screen and (max-width: 1023px) {
+    .ant-layout {
+        &-header {
+            height: 46px;
+            line-height: 46px;
+            padding: 0 24px;
+        }
+        // &-content {
+        //     padding: 24px 24px;
+        // }
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    .ant-menu {
+        line-height: 64px
+    }
+}
+
+

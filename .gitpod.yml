@@ -1,0 +1,14 @@
+image:
+  file: node:alpine
+
+# List the ports you want to expose and what to do when they are served. See https://www.gitpod.io/docs/43_config_ports/
+ports:
+  - port: 3000
+    onOpen: open-preview
+
+# List the start up tasks. You can start them in parallel in multiple terminals. See https://www.gitpod.io/docs/44_config_start_tasks/
+tasks:
+  - # before: export DANGEROUSLY_DISABLE_HOST_CHECK=true
+    # runs during prebuild
+    init: npm install && /bin/bash ./bin/post-init.sh
+    command: npm start # npm run dev
