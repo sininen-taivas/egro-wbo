@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/ergo-wbo/static/css/main.3cd639d4.chunk.css",
+    "main.js": "/ergo-wbo/static/js/main.6e09408f.chunk.js",
+    "main.js.map": "/ergo-wbo/static/js/main.6e09408f.chunk.js.map",
+    "runtime-main.js": "/ergo-wbo/static/js/runtime-main.a807ec4f.js",
+    "runtime-main.js.map": "/ergo-wbo/static/js/runtime-main.a807ec4f.js.map",
+    "static/css/2.79f74de8.chunk.css": "/ergo-wbo/static/css/2.79f74de8.chunk.css",
+    "static/js/2.f08312b5.chunk.js": "/ergo-wbo/static/js/2.f08312b5.chunk.js",
+    "static/js/2.f08312b5.chunk.js.map": "/ergo-wbo/static/js/2.f08312b5.chunk.js.map",
+    "index.html": "/ergo-wbo/index.html",
+    "precache-manifest.dd08df32f49cb3613ff74a05286068d4.js": "/ergo-wbo/precache-manifest.dd08df32f49cb3613ff74a05286068d4.js",
+    "service-worker.js": "/ergo-wbo/service-worker.js",
+    "static/css/2.79f74de8.chunk.css.map": "/ergo-wbo/static/css/2.79f74de8.chunk.css.map",
+    "static/css/main.3cd639d4.chunk.css.map": "/ergo-wbo/static/css/main.3cd639d4.chunk.css.map",
+    "static/js/2.f08312b5.chunk.js.LICENSE.txt": "/ergo-wbo/static/js/2.f08312b5.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.a807ec4f.js",
+    "static/css/2.79f74de8.chunk.css",
+    "static/js/2.f08312b5.chunk.js",
+    "static/css/main.3cd639d4.chunk.css",
+    "static/js/main.6e09408f.chunk.js"
+  ]
+}
