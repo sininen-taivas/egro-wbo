@@ -1,233 +1,185 @@
-import React, { useState } from "react";
-import { Input, Icon, Row, Col, Button, Modal, Typography, Form } from "antd";
+import React, { useState, useEffect } from "react";
+import {
+    Input,
+    Icon,
+    Row,
+    Col,
+    Button,
+    Typography,
+    Empty,
+    message
+} from "antd";
 import isEmpty from "lodash/isEmpty";
+import { KS_SERVER, KS_APIKEY } from "../common/const";
+import ButtonPrompt from "../components/ButtonPrompt";
+import RowInfo from "../components/RowInfo";
+import PaymentForm from '../components/PaymentForm';
+import API from "../common/api";
 
-const KS_SERVER = "main--serveraddr";
 const { Title } = Typography;
-
-// example data
-const moc_balances = {
-    height: 104419,
-    balance: 100000,
-    assets: {}
-};
-
-const moc_status = {
-    isInitialized: true,
-    isUnlocked: true
-};
-
-const moc_addresses = ["3WwbzW6u8hKWBcL1W7kNVMr25s2UHfSBnYtwSHvrRQt7DdPuoXrt"];
-
-function Auth(props) {
-    const [show, setShow] = React.useState(false);
-    const { apiKey, setApiKey } = props;
-    let api_key = apiKey || "";
-    const onOk = () => {
-        setApiKey(api_key);
-        setShow(false);
-    };
-    return (
-        <>
-            <Button
-                type={apiKey ? "dashed" : "danger"}
-                onClick={() => setShow(true)}
-            >
-                Auth
-            </Button>
-            <Modal
-                title="Enter Api Key"
-                visible={show}
-                onOk={onOk}
-                onCancel={() => setShow(false)}
-            >
-                <Input
-                    placeholder="Enter api_key"
-                    defaultValue={apiKey}
-                    onChange={({ target: { value } }) => (api_key = value)}
-                    allowClear
-                />
-            </Modal>
-        </>
-    );
-}
-
-function RowInfo(props) {
-    const { title, setData = () => {}, children, moc_data } = props;
-    const [loading, setLoading] = useState(false);
-    return (
-        <Row>
-            <Col span={2}>{title ? title : ""}</Col>
-            <Col span={1}>
-                <Button
-                    type="link"
-                    icon="reload"
-                    loading={loading}
-                    onClick={() => {
-                        // TODO loading data
-                        setLoading(true);
-                        setTimeout(() => {
-                            setData(moc_data);
-                            setLoading(false);
-                        }, 500);
-                    }}
-                />
-            </Col>
-            <Col span={8}>{children}</Col>
-        </Row>
-    );
-}
-
-function PaymentForm(props) {
-    const { form } = props;
-    const { getFieldDecorator } = form;
-
-    const checkAmount = (rule, value, callback) => {
-        if (value && value < 100000)
-            callback("Minimal ERG value not met. Value must more then 100 000");
-        else callback();
-    };
-
-    const handleSubmit = e => {
-        e.preventDefault();
-        form.validateFields((err, values) => {
-            if (!err) {
-                console.log("Received values of form: ", values);
-            }
-        });
-    };
-
-    // const walletError = isFieldTouched("wallet") && getFieldError("wallet");
-    // const amountError = isFieldTouched("amount") && getFieldError("amount");
-    return (
-        <Form onSubmit={handleSubmit}>
-            <Form.Item>
-                {getFieldDecorator("wallet", {
-                    rules: [
-                        {
-                            required: true,
-                            message: "Please input wallet address!"
-                        }
-                    ]
-                })(
-                    <Input
-                        prefix={<Icon type="wallet" />}
-                        placeholder="Wallet address"
-                    />
-                )}
-            </Form.Item>
-            <Form.Item>
-                {getFieldDecorator("amount", {
-                    rules: [
-                        { required: true, message: "Please input amount" },
-                        { validator: checkAmount }
-                    ]
-                })(
-                    <Input
-                        prefix={<Icon type="pay-circle" />}
-                        placeholder="Amount"
-                    />
-                )}
-            </Form.Item>
-            <Form.Item>
-                <Button htmlType="submit">Send</Button>
-            </Form.Item>
-        </Form>
-    );
-}
-
-const WrappedPaymentForm = Form.create({ name: "payment_form" })(PaymentForm);
 
 export default function Main(props) {
     const [serverAddr, setServerAddr] = useState(
         localStorage.getItem(KS_SERVER) || ""
     );
-    const [apiKey, setApiKey] = useState("");
+    const [apiKey, setApiKey] = useState(localStorage.getItem(KS_APIKEY) || "");
     const [balances, setBalances] = useState({});
     const [status, setStatus] = useState({});
     const [addresses, setAddresses] = useState([]);
 
+    const checkStatus = () =>
+        API.get("/wallet/status").then(({ data }) => {
+            setStatus(data);
+            return data;
+        });
+
+    // on mount
+    useEffect(() => {
+        if (!isEmpty(serverAddr) && !isEmpty(apiKey)) checkStatus();
+    }, [serverAddr, apiKey]);
+
     return (
         <>
-            <Row gutter={8}>
+            <Row gutter={8} style={{ marginBottom: "8px" }}>
                 <Col span={8}>
                     <Input
                         placeholder="Wallet node"
                         addonAfter={<Icon type="cloud-server" />}
                         value={serverAddr}
-                        onChange={async ({ target: { value } }) => {
+                        onChange={({ target: { value } }) => {
                             setServerAddr(value);
-                            localStorage.setItem(KS_SERVER, value);
+                            if (value) localStorage.setItem(KS_SERVER, value);
+                            else delete localStorage[KS_SERVER];
                         }}
                     />
                 </Col>
                 {/* {Authenication} */}
                 <Col span={4}>
-                    <Auth apiKey={apiKey} setApiKey={setApiKey} />
+                    <ButtonPrompt
+                        buttonTitle="Auth"
+                        modalTitle="Enter api_key"
+                        value={apiKey}
+                        onOk={api_key => {
+                            setApiKey(api_key);
+                        }}
+                    />
                 </Col>
             </Row>
-            <Title level={3}>Wallet</Title>
-            <RowInfo
-                title="Addresses"
-                data={addresses}
-                setData={setAddresses}
-                moc_data={moc_addresses}
-            >
-                {!isEmpty(addresses)
-                    ? addresses.map(a => <div key={a.toString()}>{a}</div>)
-                    : "no data"}
-            </RowInfo>
-            <RowInfo
-                title="Status"
-                data={status}
-                setData={setStatus}
-                moc_data={moc_status}
-            >
-                {!isEmpty(status) ? (
-                    <>
-                        <Col span={8}>
-                            <strong>is initialized</strong>:{" "}
-                            {status.isInitialized.toString()}
-                        </Col>
-                        <Col span={8}>
-                            <strong>is unlocked</strong>:{" "}
-                            {status.isUnlocked.toString()}
-                        </Col>
-                    </>
-                ) : (
-                    "no data"
-                )}
-            </RowInfo>
-            <RowInfo
-                title="Balances"
-                data={balances}
-                setData={setBalances}
-                moc_data={moc_balances}
-            >
-                {!isEmpty(balances) ? (
-                    <>
-                        <Col span={8}>
-                            <strong>height</strong>: {balances.height}{" "}
-                        </Col>
-                        <Col span={8}>
-                            <strong>balance</strong>: {balances.balance}
-                        </Col>
-                    </>
-                ) : (
-                    "no data"
-                )}
-            </RowInfo>
-            <Title level={3}>Actions</Title>
-            {/* // TODO show lock/unlock according status */}
-            <Row>
-                <Button>Lock/Unlock</Button>
-            </Row>
-            <Title level={3}>Payment</Title>
-            <Row>
-                <Col span={8}>
-                    <WrappedPaymentForm />
-                </Col>
-            </Row>
+            {!isEmpty(serverAddr) && !isEmpty(apiKey) ? (
+                <>
+                    <Title level={3}>
+                        Wallet
+                        {status.isUnlocked === false && (
+                            <ButtonPrompt
+                                buttonTitle="Unlock"
+                                buttonType="link"
+                                onOk={async pass => {
+                                    try {
+                                        await API.post("/wallet/unlock", {
+                                            pass
+                                        });
+                                        await checkStatus();
+                                    } catch ({ response }) {
+                                        message.error(
+                                            `Unlock error: ${response.data.detail}`
+                                        );
+                                    }
+                                }}
+                            />
+                        )}
+                        {status.isUnlocked === true && (
+                            <Button
+                                type="link"
+                                onClick={async () => {
+                                    try {
+                                        await API.get("/wallet/lock");
+                                        await checkStatus();
+                                    } catch ({ response }) {
+                                        message.error(
+                                            `Lock error: ${response.data.detail}`
+                                        );
+                                    }
+                                }}
+                            >
+                                Lock
+                            </Button>
+                        )}
+                    </Title>
+                    <RowInfo title="Status" prom={checkStatus}>
+                        {!isEmpty(status) ? (
+                            <>
+                                <Col span={8}>
+                                    <strong>is initialized</strong>:{" "}
+                                    {status.isInitialized.toString()}
+                                </Col>
+                                <Col span={8}>
+                                    <strong>is unlocked</strong>:{" "}
+                                    {status.isUnlocked.toString()}
+                                </Col>
+                            </>
+                        ) : (
+                            "no data"
+                        )}
+                    </RowInfo>
+                    {status && status.isUnlocked && (
+                        <>
+                            <RowInfo
+                                title="Addresses"
+                                prom={() =>
+                                    API.get("/wallet/addresses")
+                                        .then(({ data }) => {
+                                            setAddresses(data);
+                                        })
+                                        .catch(({ response }) => {
+                                            message.error(response.data.detail);
+                                        })
+                                }
+                            >
+                                {!isEmpty(addresses)
+                                    ? addresses.map(a => (
+                                          <div key={a.toString()}>{a}</div>
+                                      ))
+                                    : "no data"}
+                            </RowInfo>
+                            <RowInfo
+                                title="Balances"
+                                prom={() =>
+                                    API.get("/wallet/balances")
+                                        .then(({ data }) => {
+                                            setBalances(data);
+                                        })
+                                        .catch(({ response }) => {
+                                            message.error(response.data.detail);
+                                        })
+                                }
+                            >
+                                {!isEmpty(balances) ? (
+                                    <>
+                                        <Col span={8}>
+                                            <strong>height</strong>:{" "}
+                                            {balances.height}{" "}
+                                        </Col>
+                                        <Col span={8}>
+                                            <strong>balance</strong>:{" "}
+                                            {balances.balance}
+                                        </Col>
+                                    </>
+                                ) : (
+                                    "no data"
+                                )}
+                            </RowInfo>
+                            <Title level={3}>Payment</Title>
+                            <Row>
+                                <Col span={8}>
+                                    <PaymentForm />
+                                </Col>
+                            </Row>
+                        </>
+                    )}
+                </>
+            ) : (
+                <Empty description="Enter server data" />
+            )}
         </>
     );
 }
