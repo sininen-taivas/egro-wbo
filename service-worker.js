@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/ergo-wbo/precache-manifest.6976735764ff458c2675700814053af7.js"
+  "/ergo-wbo/precache-manifest.a838e2ddbe2b00b1d6cb510d6389fe08.js"
 );
 
 self.addEventListener('message', (event) => {
