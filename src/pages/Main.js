@@ -48,8 +48,7 @@ export default function Main(props) {
                         value={serverAddr}
                         onChange={({ target: { value } }) => {
                             setServerAddr(value);
-                            if (value) localStorage.setItem(KS_SERVER, value);
-                            else delete localStorage[KS_SERVER];
+                            localStorage.setItem(KS_SERVER, value);
                         }}
                     />
                 </Col>
@@ -60,6 +59,7 @@ export default function Main(props) {
                         modalTitle="Enter api_key"
                         value={apiKey}
                         onOk={api_key => {
+                            localStorage.setItem(KS_APIKEY, api_key);
                             setApiKey(api_key);
                         }}
                     />

@@ -29,7 +29,7 @@ function PaymentForm(props) {
     // const amountError = isFieldTouched("amount") && getFieldError("amount");
     return (
         <Form onSubmit={handleSubmit}>
-            <p style={{color: 'red'}}>Now work (in development)</p>
+            <p style={{color: 'red'}}>Not working now (in development)</p>
             <Form.Item>
                 {getFieldDecorator("wallet", {
                     rules: [
